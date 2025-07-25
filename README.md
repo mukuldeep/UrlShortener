@@ -16,6 +16,8 @@ A simple and efficient URL Shortener built with **Spring Boot**, **MongoDB**, **
 ![Spring Boot](https://img.shields.io/badge/Spring%20Boot-3.x-brightgreen?logo=springboot)
 ![Maven](https://img.shields.io/badge/Maven-Build-blue?logo=apachemaven)
 ![MongoDB](https://img.shields.io/badge/Database-MongoDB-green?logo=mongodb)
+![Lombok](https://img.shields.io/badge/Lombok-Used-orange?logo=lombok)
+
 
 ## Setup Instructions
 ### Prerequisites
