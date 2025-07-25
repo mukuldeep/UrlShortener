@@ -7,7 +7,7 @@ import com.offlinew.urlshortener.repository.UrlMappingRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.concurrent.ConcurrentHashMap;
+import java.util.Optional;
 import java.util.concurrent.atomic.AtomicLong;
 
 @Service
@@ -37,8 +37,14 @@ public class UrlShortenerService {
                     idCounter.set(Math.max(idCounter.get(),idCounterDb));
 
                     String code = encodeBase62(idCounter.incrementAndGet());
-                    UrlMapping mapping = new UrlMapping(originalUrl, code);
-                    urlMappingRepository.save(mapping);
+                    UrlMapping urlMapping = new UrlMapping(originalUrl, code);
+
+                    //expiry timestamp
+                    long currentTimestamp = System.currentTimeMillis() / 1000;
+                    long expiryTimestamp = currentTimestamp + 2 * 60; //default expiry = 10 minutes
+                    urlMapping.setExpiaryTs(expiryTimestamp);
+
+                    urlMappingRepository.save(urlMapping);
 
                     kvStore.setValue(String.valueOf(idCounter.get()));
                     kvStoreRepository.save(kvStore);
@@ -48,7 +54,26 @@ public class UrlShortenerService {
     }
 
     public String getOriginalUrl(String shortCode) {
-        return urlMappingRepository.findByShortCode(shortCode)
+
+        //increase visit count
+        Optional<UrlMapping> urlMappingOp = urlMappingRepository.findByShortCode(shortCode);
+        UrlMapping urlMapping = null;
+        if(urlMappingOp.isPresent()){
+            urlMapping = urlMappingOp.get();
+            Long count = urlMapping.getVisitCount();
+            count = (count == null)?1L:count+1;
+            urlMapping.setVisitCount(count);
+
+            //block if expired
+            long currentTimestamp = System.currentTimeMillis() / 1000;
+            if(urlMapping.getExpiaryTs() <= currentTimestamp){
+                return null;
+            }
+
+            urlMappingRepository.save(urlMapping);
+        }
+
+        return urlMappingOp
                 .map(UrlMapping::getOriginalUrl)
                 .orElse(null);
     }

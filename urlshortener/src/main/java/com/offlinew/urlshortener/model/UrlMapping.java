@@ -18,6 +18,12 @@ public class UrlMapping {
     @Indexed(unique = true)
     private String shortCode;
 
+    private Long visitCount;
+
+    private Long expiaryTs;
+
+    private String status;
+
     public UrlMapping(String originalUrl, String shortCode) {
         this.originalUrl = originalUrl;
         this.shortCode = shortCode;
