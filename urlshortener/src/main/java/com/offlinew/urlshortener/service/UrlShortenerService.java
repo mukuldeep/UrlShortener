@@ -67,7 +67,7 @@ public class UrlShortenerService {
             //block if expired
             long currentTimestamp = System.currentTimeMillis() / 1000;
             if(urlMapping.getExpiaryTs() <= currentTimestamp){
-                return null;
+                return "http://localhost:8080/expired";
             }
 
             urlMappingRepository.save(urlMapping);
@@ -75,7 +75,7 @@ public class UrlShortenerService {
 
         return urlMappingOp
                 .map(UrlMapping::getOriginalUrl)
-                .orElse(null);
+                .orElse("http://localhost:8080/not_found");
     }
     private String encodeBase62(long value) {
         StringBuilder sb = new StringBuilder();
