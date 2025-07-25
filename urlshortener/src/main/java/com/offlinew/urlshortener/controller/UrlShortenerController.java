@@ -10,18 +10,18 @@ import org.springframework.web.servlet.view.RedirectView;
 public class UrlShortenerController {
 
     @Autowired
-    private UrlShortenerService service;
+    private UrlShortenerService urlShortenerService;
     @PostMapping("/shorten")
     public ResponseEntity<String> shorten(@RequestBody String originalUrl) {
-        String code = service.shortenUrl(originalUrl);
+        String code = urlShortenerService.shortenUrl(originalUrl);
         return ResponseEntity.ok("http://localhost:8080/" + code);
     }
 
     @GetMapping("/{code}")
     public RedirectView redirect(@PathVariable String code) {
-        String originalUrl = service.getOriginalUrl(code);
+        String originalUrl = urlShortenerService.getOriginalUrl(code);
         if (originalUrl == null) {
-            return new RedirectView("/error"); // Simple fallback
+            return new RedirectView("/error");
         }
         return new RedirectView(originalUrl);
     }
